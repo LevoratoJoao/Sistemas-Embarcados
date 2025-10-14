@@ -7,51 +7,51 @@ void initLCD(LiquidCrystal *lcd)
     lcd->print("hello, world!");
 }
 
-void updateLCD(LiquidCrystal *lcd, int hour, int minute, int second)
+void updateLCD(LiquidCrystal *lcd, Time time)
 {
     lcd->clear();
     lcd->setCursor(0, 0);
     lcd->print("Time:");
     lcd->setCursor(0, 1);
-    if (hour < 10)
+    if (time.hours < 10)
         lcd->print("0");
-    lcd->print(hour);
+    lcd->print(time.hours);
     lcd->print(":");
-    if (minute < 10)
+    if (time.minutes < 10)
         lcd->print("0");
-    lcd->print(minute);
+    lcd->print(time.minutes);
     lcd->print(":");
-    if (second < 10)
+    if (time.seconds < 10)
         lcd->print("0");
-    lcd->print(second);
+    lcd->print(time.seconds);
 }
 
-void displayTime(LiquidCrystal *lcd, int hour, int minute, int second, int alarmHour, int alarmMinute)
+void displayTime(LiquidCrystal *lcd, Time time, int alarmHour, int alarmMinute)
 {
     lcd->clear();
     lcd->setCursor(0, 0);
     lcd->print("Time:");
-    if (hour < 10)
+    if (time.hours < 10)
     {
         lcd->print("0");
     }
-    lcd->print(hour);
+    lcd->print(time.hours);
     lcd->print(":");
-    if (minute < 10)
+    if (time.minutes < 10)
     {
         lcd->print("0");
     }
-    lcd->print(minute);
+    lcd->print(time.minutes);
     lcd->print(":");
-    if (second < 10)
+    if (time.seconds < 10)
     {
         lcd->print("0");
     }
-    lcd->print(second);
+    lcd->print(time.seconds);
 
     lcd->setCursor(0, 1);
     lcd->print("Alarm:");
-    if (hour < 10)
+    if (alarmHour < 10)
     {
         lcd->print("0");
     }

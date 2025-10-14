@@ -1,12 +1,10 @@
 #include "watch.h"
 #include <Arduino.h>
 
-Watch watch;
-void setupWatch(int hour, int minute, int second)
+Time watch;
+void setupWatch(Time time)
 {
-    watch.hours = hour;
-    watch.minutes = minute;
-    watch.seconds = second;
+    watch = time;
 }
 
 void updateWatch()
@@ -28,7 +26,7 @@ void updateWatch()
     }
 }
 
-Watch getWatch()
+Time getWatch()
 {
     return watch;
 }
