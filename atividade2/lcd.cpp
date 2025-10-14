@@ -26,7 +26,7 @@ void updateLCD(LiquidCrystal *lcd, Time time)
     lcd->print(time.seconds);
 }
 
-void displayTime(LiquidCrystal *lcd, Time time, int alarmHour, int alarmMinute)
+void displayTime(LiquidCrystal *lcd, Time time, int alarmHour, int alarmMinute, int alarmSecond)
 {
     lcd->clear();
     lcd->setCursor(0, 0);
@@ -62,4 +62,10 @@ void displayTime(LiquidCrystal *lcd, Time time, int alarmHour, int alarmMinute)
         lcd->print("0");
     }
     lcd->print(alarmMinute);
+    lcd->print(":");
+    if (alarmSecond < 10)
+    {
+        lcd->print("0");
+    }
+    lcd->print(alarmSecond);
 }

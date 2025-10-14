@@ -47,6 +47,7 @@ enum States
   SET_SECOND,
   SET_ALARM_HOUR,
   SET_ALARM_MINUTE,
+  SET_ALARM_SECOND,
   NORMAL,
   ALARM_TRIGGERED
 };
@@ -75,7 +76,7 @@ void setup()
 
   initLCD(&lcd);
   setupWatch(currentWatch);
-  setupAlarm(12, 1);
+  setupAlarm(12, 1, 0);
 
   state = SET_HOUR;
 
@@ -109,17 +110,7 @@ void setup()
 
 void loop()
 {
-  Serial.print(F("Current Time: "));
-  Serial.print(currentWatch.hours);
-  Serial.print(F(":"));
-  Serial.print(currentWatch.minutes);
-  Serial.print(F(":"));
-  Serial.println(currentWatch.seconds);
-  delay(1000);
-
 #if TEST_MODE
-  Serial.print("Current state: ");
-  Serial.println(state);
 #else
   switch (state)
   {
@@ -147,30 +138,55 @@ void loop()
   case SET_ALARM_MINUTE:
     Serial.println("Setting Alarm Minute");
     selectMinute(currentAlarm);
-    setupAlarm(currentAlarm.hours, currentAlarm.minutes);
+    state = SET_ALARM_SECOND;
+    break;
+  case SET_ALARM_SECOND:
+    Serial.println("Setting Alarm Second");
+    selectSecond(currentAlarm);
+    setupAlarm(currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
     state = NORMAL;
     break;
   case NORMAL:
+    printTimeInfo();
+    delay(1000);
+
     currentWatch = getWatch();
 
-    bool alarmTriggered = isAlarmTriggered(currentWatch.hours, currentWatch.minutes);
+    bool alarmTriggered = isAlarmTriggered(currentWatch.hours, currentWatch.minutes, currentWatch.seconds);
     if (alarmTriggered)
     {
       triggerAlarm();
+      state = NORMAL;
+      break;
     }
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
-    break;
   }
-  displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+  displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
 
 #endif
+}
+
+void printTimeInfo()
+{
+  Serial.print("Current Time: ");
+  Serial.print(currentWatch.hours);
+  Serial.print(F(":"));
+  Serial.print(currentWatch.minutes);
+  Serial.print(F(":"));
+  Serial.println(currentWatch.seconds);
+
+  Serial.print("Alarm Time: ");
+  Serial.print(currentAlarm.hours);
+  Serial.print(F(":"));
+  Serial.print(currentAlarm.minutes);
+  Serial.print(F(":"));
+  Serial.println(currentAlarm.seconds);
 }
 
 void selectHour(Time &currentTime)
 {
   while (true)
   {
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -210,7 +226,7 @@ void selectMinute(Time &currentTime)
 {
   while (true)
   {
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -249,7 +265,7 @@ void selectSecond(Time &currentTime)
 {
   while (true)
   {
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -286,18 +302,23 @@ void selectSecond(Time &currentTime)
 
 void triggerAlarm()
 {
-  while (true)
+  Serial.println("Triggering Alarm!");
+  tone(BUZZER, 440);
+  unsigned long startTime = millis();
+  while (millis() - startTime < 10000)
   {
-    Serial.println("Triggering Alarm!");
-    tone(BUZZER, 440);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+    delay(200);
     if (digitalRead(ANALOG_BUTTON_PIN) == 0)
     {
-      noTone(BUZZER);
       while (digitalRead(ANALOG_BUTTON_PIN) == 0)
       {
         delay(10);
       }
+      noTone(BUZZER);
+      break;
     }
-    break;
   }
+  noTone(BUZZER);
+  Serial.println("Alarm Stopped");
 }
