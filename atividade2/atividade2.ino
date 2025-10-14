@@ -153,24 +153,15 @@ void loop()
   case NORMAL:
     currentWatch = getWatch();
 
-    // Serial.println("Normal Mode");
-
-    // bool alarmTriggered = isAlarmTriggered(currentWatch.hours, currentWatch.minutes);
-    // if (alarmTriggered)
-    // {
-    //   state = ALARM_TRIGGERED;
-    // }
-    // updateLCD(&lcd, currentWatch);
-    // setupWatch(currentWatch);
+    bool alarmTriggered = isAlarmTriggered(currentWatch.hours, currentWatch.minutes);
+    if (alarmTriggered)
+    {
+      triggerAlarm();
+    }
     displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
     break;
-    // case ALARM_TRIGGERED:
-    //   Serial.println("Alarm Triggered! 2");
-    //   triggerAlarm();
-    //   state = NORMAL;
-    //   break;
   }
-  // displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+  displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
 
 #endif
 }
@@ -179,7 +170,7 @@ void selectHour(Time &currentTime)
 {
   while (true)
   {
-    // displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -219,7 +210,7 @@ void selectMinute(Time &currentTime)
 {
   while (true)
   {
-    // displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -258,7 +249,7 @@ void selectSecond(Time &currentTime)
 {
   while (true)
   {
-    // displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
+    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -299,7 +290,6 @@ void triggerAlarm()
   {
     Serial.println("Triggering Alarm!");
     tone(BUZZER, 440);
-    delay(5000); // Alarm sounds for 5 seconds
     if (digitalRead(ANALOG_BUTTON_PIN) == 0)
     {
       noTone(BUZZER);
@@ -308,5 +298,6 @@ void triggerAlarm()
         delay(10);
       }
     }
+    break;
   }
 }
