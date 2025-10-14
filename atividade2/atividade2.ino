@@ -110,7 +110,16 @@ void setup()
 
 void loop()
 {
+  // Serial.print(F("Current Time: "));
+  // Serial.print(currentWatch.hours);
+  // Serial.print(F(":"));
+  // Serial.print(currentWatch.minutes);
+  // Serial.print(F(":"));
+  // Serial.println(currentWatch.seconds);
+  // delay(1000);
+
 #if TEST_MODE
+  useTestMode(&lcd, state);
 #else
   switch (state)
   {
@@ -153,6 +162,8 @@ void loop()
     currentWatch = getWatch();
 
     bool alarmTriggered = isAlarmTriggered(currentWatch.hours, currentWatch.minutes, currentWatch.seconds);
+    Serial.print("Alarm Triggered: ");
+    Serial.println(alarmTriggered ? "YES" : "NO");
     if (alarmTriggered)
     {
       triggerAlarm();
@@ -305,7 +316,7 @@ void triggerAlarm()
   Serial.println("Triggering Alarm!");
   tone(BUZZER, 440);
   unsigned long startTime = millis();
-  while (millis() - startTime < 10000)
+  while (true)
   {
     displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
     delay(200);
@@ -321,4 +332,58 @@ void triggerAlarm()
   }
   noTone(BUZZER);
   Serial.println("Alarm Stopped");
+}
+
+void useTestMode(LiquidCrystal *lcd, States state)
+{
+  switch (state)
+  {
+  case SET_HOUR:
+    currentWatch.hours = 23;
+    state = SET_MINUTE;
+    break;
+  case SET_MINUTE:
+    currentWatch.minutes = 58;
+    state = SET_SECOND;
+    break;
+  case SET_SECOND:
+    currentWatch.seconds = 50;
+    setupWatch(currentWatch);
+    state = SET_ALARM_HOUR;
+    break;
+  case SET_ALARM_HOUR:
+    currentAlarm.hours = 23;
+    state = SET_ALARM_MINUTE;
+    break;
+  case SET_ALARM_MINUTE:
+    currentAlarm.minutes = 59;
+    state = SET_ALARM_SECOND;
+    break;
+  case SET_ALARM_SECOND:
+    currentAlarm.seconds = 1;
+    setupAlarm(currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+    state = NORMAL;
+    break;
+  case NORMAL:
+    printTimeInfo();
+    delay(1000);
+
+    currentWatch = getWatch();
+
+    bool alarmTriggered = isAlarmTriggered(currentWatch.hours, currentWatch.minutes, currentWatch.seconds);
+    if (alarmTriggered)
+    {
+      state = ALARM_TRIGGERED;
+      break;
+    }
+    else
+    {
+      displayTime(lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+      break;
+    }
+  case ALARM_TRIGGERED:
+    triggerAlarm();
+    state = NORMAL;
+    break;
+  }
 }
