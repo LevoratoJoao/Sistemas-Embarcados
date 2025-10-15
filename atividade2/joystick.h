@@ -14,8 +14,17 @@ typedef struct
     bool lastButtonState;
 } Joystick;
 
+typedef enum
+{
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3,
+    NONE = 4
+} JoystickDirection;
+
 void setupJoystick(Joystick *joystick, int portX, int portY, int button);
 bool isButtonPressed(Joystick *joystick);
-bool isJoystickMoved(Joystick *joystick, int *direction);
+JoystickDirection isJoystickMoved(Joystick *joystick);
 
 #endif

@@ -27,24 +27,33 @@ bool isButtonPressed(Joystick *joystick)
     return false;
 }
 
-bool isJoystickMoved(Joystick *joystick, int *direction)
+JoystickDirection isJoystickMoved(Joystick *joystick)
 {
     unsigned long currentTime = millis();
     if (currentTime - joystick->lastJoystickTime < 300)
-        return false;
+        return NONE;
 
     int yValue = analogRead(joystick->portY);
     if (yValue >= 900)
     {
         joystick->lastJoystickTime = currentTime;
-        *direction = 1; // UP
-        return true;
+        return UP;
     }
     else if (yValue <= 100)
     {
         joystick->lastJoystickTime = currentTime;
-        *direction = -1; // DOWN
-        return true;
+        return DOWN;
     }
-    return false;
+    int xValue = analogRead(joystick->portX);
+    if (xValue >= 900)
+    {
+        joystick->lastJoystickTime = currentTime;
+        return RIGHT;
+    }
+    else if (xValue <= 100)
+    {
+        joystick->lastJoystickTime = currentTime;
+        return LEFT;
+    }
+    return NONE;
 }

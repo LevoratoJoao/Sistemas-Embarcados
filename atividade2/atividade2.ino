@@ -55,6 +55,7 @@ enum States
 };
 
 States state;
+States previousState;
 
 #if USE_TIMER_1
 
@@ -86,6 +87,7 @@ void setup()
   setupAlarm(12, 1, 0);
 
   state = SET_HOUR;
+  previousState = SET_ALARM_SECOND;
 
   Serial.print(F("\nStarting TimerInterruptTest on "));
   Serial.println(BOARD_TYPE);
@@ -125,34 +127,27 @@ void loop()
   case SET_HOUR:
     Serial.println("Setting Hour");
     selectHour(currentWatch);
-    state = SET_MINUTE;
     break;
   case SET_MINUTE:
     Serial.println("Setting Minute");
     selectMinute(currentWatch);
-    state = SET_SECOND;
     break;
   case SET_SECOND:
     Serial.println("Setting Second");
     selectSecond(currentWatch);
     setupWatch(currentWatch);
-    state = SET_ALARM_HOUR;
     break;
   case SET_ALARM_HOUR:
     Serial.println("Setting Alarm Hour");
     selectHour(currentAlarm);
-    state = SET_ALARM_MINUTE;
     break;
   case SET_ALARM_MINUTE:
     Serial.println("Setting Alarm Minute");
     selectMinute(currentAlarm);
-    state = SET_ALARM_SECOND;
     break;
   case SET_ALARM_SECOND:
     Serial.println("Setting Alarm Second");
     selectSecond(currentAlarm);
-    setupAlarm(currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
-    state = NORMAL;
     break;
   case NORMAL:
     printTimeInfo();
@@ -166,7 +161,7 @@ void loop()
     if (alarmTriggered)
     {
       triggerAlarm();
-      state = NORMAL;
+      state = NORMAL; // TODO
       break;
     }
   }
@@ -197,22 +192,38 @@ void selectHour(Time &currentTime)
   while (true)
   {
     displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_HOUR ? 0 : 3);
-    int direction;
-    if (isJoystickMoved(&joystick, &direction))
+
+    JoystickDirection direction = isJoystickMoved(&joystick);
+    switch (direction)
     {
-      currentTime.hours += direction;
+    case UP:
+      currentTime.hours++;
       if (currentTime.hours >= 24)
       {
         currentTime.hours = 0;
       }
+      break;
+    case DOWN:
+      currentTime.hours--;
       if (currentTime.hours < 0)
       {
         currentTime.hours = 23;
       }
+      break;
+    case LEFT:
+      state = (States)((state == SET_HOUR) ? SET_ALARM_SECOND : state - 1);
+      return;
+    case RIGHT:
+      state = (States)((state == SET_ALARM_SECOND) ? SET_HOUR : state + 1);
+      return;
+    default:
+      break;
     }
 
     if (isButtonPressed(&joystick))
     {
+      previousState = state;
+      state = state == SET_HOUR ? SET_MINUTE : SET_ALARM_MINUTE;
       break;
     }
     delay(50);
@@ -228,22 +239,38 @@ void selectMinute(Time &currentTime)
   {
     displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_MINUTE ? 1 : 4);
 
-    int direction;
-    if (isJoystickMoved(&joystick, &direction))
+    JoystickDirection direction = isJoystickMoved(&joystick);
+
+    switch (direction)
     {
-      currentTime.minutes += direction;
+    case UP:
+      currentTime.minutes++;
       if (currentTime.minutes >= 60)
       {
         currentTime.minutes = 0;
       }
+      break;
+    case DOWN:
+      currentTime.minutes--;
       if (currentTime.minutes < 0)
       {
         currentTime.minutes = 59;
       }
+      break;
+    case LEFT:
+      state = (States)((state == SET_HOUR) ? SET_ALARM_SECOND : state - 1);
+      return;
+    case RIGHT:
+      state = (States)((state == SET_ALARM_SECOND) ? SET_HOUR : state + 1);
+      return;
+    default:
+      break;
     }
 
     if (isButtonPressed(&joystick))
     {
+      previousState = state;
+      state = state == SET_MINUTE ? SET_SECOND : SET_ALARM_SECOND;
       break;
     }
     delay(50);
@@ -258,22 +285,38 @@ void selectSecond(Time &currentTime)
   {
     displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_SECOND ? 2 : 5);
 
-    int direction;
-    if (isJoystickMoved(&joystick, &direction))
+    JoystickDirection direction = isJoystickMoved(&joystick);
+    switch (direction)
     {
-      currentTime.seconds += direction;
+    case UP:
+      currentTime.seconds++;
       if (currentTime.seconds >= 60)
       {
         currentTime.seconds = 0;
       }
+      break;
+    case DOWN:
+      currentTime.seconds--;
       if (currentTime.seconds < 0)
       {
         currentTime.seconds = 59;
       }
+      break;
+    case LEFT:
+      state = (States)((state == SET_HOUR) ? SET_ALARM_SECOND : state - 1);
+      return;
+    case RIGHT:
+      state = (States)((state == SET_ALARM_SECOND) ? SET_HOUR : state + 1);
+      return;
+    default:
+      break;
     }
 
     if (isButtonPressed(&joystick))
     {
+      state == SET_SECOND ? setupWatch(currentWatch) : setupAlarm(currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+      previousState = state;
+      state = state == SET_SECOND ? SET_ALARM_HOUR : NORMAL;
       break;
     }
     delay(50);
