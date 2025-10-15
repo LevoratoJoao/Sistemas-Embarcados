@@ -4,6 +4,7 @@
 #define ALARM_H
 
 void setupAlarm(int hour, int minute, int second);
+// TODO: mudar alarm para Time
 bool isAlarmTriggered(int currentHour, int currentMinute, int currentSecond);
 Time getAlarm();
 

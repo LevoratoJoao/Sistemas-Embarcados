@@ -61,7 +61,7 @@ States previousState;
 
 void TimerHandler1()
 {
-  updateWatch();
+  updateWatch(); // TODO: atualizar so em NORMAL
   if (isButtonPressed(&joystick))
   {
     state = SET_HOUR;
@@ -149,7 +149,7 @@ void loop()
     Serial.println("Setting Alarm Second");
     selectSecond(currentAlarm);
     break;
-  case NORMAL:
+  case NORMAL: // TODO: timeout pra voltar pro normal
     printTimeInfo();
     delay(1000);
 
