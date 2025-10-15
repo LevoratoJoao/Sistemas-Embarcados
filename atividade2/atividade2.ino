@@ -26,6 +26,7 @@
 #include "watch.h"
 #include "alarm.h"
 #include "time.h"
+#include "joystick.h"
 
 #define ANALOG_X_PIN A0
 #define ANALOG_Y_PIN A1
@@ -39,6 +40,7 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 int BUZZER = 6;
 Time currentWatch;
 Time currentAlarm;
+Joystick joystick = {ANALOG_X_PIN, ANALOG_Y_PIN, ANALOG_BUTTON_PIN};
 
 enum States
 {
@@ -59,6 +61,10 @@ States state;
 void TimerHandler1()
 {
   updateWatch();
+  if (isButtonPressed(&joystick))
+  {
+    state = SET_HOUR;
+  }
 }
 
 #endif
@@ -75,6 +81,7 @@ void setup()
   pinMode(ANALOG_BUTTON_PIN, INPUT_PULLUP);
 
   initLCD(&lcd);
+  setupJoystick(&joystick, ANALOG_X_PIN, ANALOG_Y_PIN, ANALOG_BUTTON_PIN);
   setupWatch(currentWatch);
   setupAlarm(12, 1, 0);
 
@@ -197,7 +204,7 @@ void selectHour(Time &currentTime)
 {
   while (true)
   {
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+    displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_HOUR ? 0 : 3);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -237,7 +244,7 @@ void selectMinute(Time &currentTime)
 {
   while (true)
   {
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+    displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_MINUTE ? 1 : 4);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {
@@ -276,7 +283,7 @@ void selectSecond(Time &currentTime)
 {
   while (true)
   {
-    displayTime(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds);
+    displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_SECOND ? 2 : 5);
     delay(200);
     if (analogRead(ANALOG_Y_PIN) >= 900)
     {

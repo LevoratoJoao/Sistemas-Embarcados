@@ -7,5 +7,6 @@
 void initLCD(LiquidCrystal *lcd);
 void updateLCD(LiquidCrystal *lcd, Time time);
 void displayTime(LiquidCrystal *lcd, Time time, int alarmHour, int alarmMinute, int alarmSecond);
+void displayTimeWithCursor(LiquidCrystal *lcd, Time time, int alarmHour, int alarmMinute, int alarmSecond, int editField);
 
 #endif

@@ -11,6 +11,7 @@ typedef struct
     int button;
 } Joystick;
 
-void initJoystick(Joystick *joystick, int portX, int portY, int button);
+void setupJoystick(Joystick *joystick, int portX, int portY, int button);
+bool isButtonPressed(Joystick *joystick);
 
 #endif

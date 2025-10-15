@@ -1,13 +1,27 @@
 #include "joystick.h"
 
-void initJoystick(Joystick *joystick, int portX, int portY, int button)
+#include <Arduino.h>
+
+void setupJoystick(Joystick *joystick, int portX, int portY, int button)
 {
     joystick->portX = portX;
     joystick->portY = portY;
     joystick->button = button;
 }
 
-void readJoystick(Joystick *joystick)
+bool isButtonPressed(Joystick *joystick)
 {
-    
+    if (digitalRead(joystick->button) == LOW)
+    {
+        delay(5000);
+        if (digitalRead(joystick->button) == LOW)
+        {
+            while (digitalRead(joystick->button) == LOW)
+            {
+                delay(10);
+            }
+            return true;
+        }
+    }
+    return false;
 }
