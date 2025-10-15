@@ -117,14 +117,6 @@ void setup()
 
 void loop()
 {
-  // Serial.print(F("Current Time: "));
-  // Serial.print(currentWatch.hours);
-  // Serial.print(F(":"));
-  // Serial.print(currentWatch.minutes);
-  // Serial.print(F(":"));
-  // Serial.println(currentWatch.seconds);
-  // delay(1000);
-
 #if TEST_MODE
   useTestMode(&lcd, state);
 #else
@@ -205,35 +197,25 @@ void selectHour(Time &currentTime)
   while (true)
   {
     displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_HOUR ? 0 : 3);
-    delay(200);
-    if (analogRead(ANALOG_Y_PIN) >= 900)
+    int direction;
+    if (isJoystickMoved(&joystick, &direction))
     {
-      currentTime.hours++;
+      currentTime.hours += direction;
       if (currentTime.hours >= 24)
       {
         currentTime.hours = 0;
       }
-      Serial.print("Increased Hour");
-      Serial.println(currentTime.hours);
-    }
-    else if (analogRead(ANALOG_Y_PIN) <= 100)
-    {
-      currentTime.hours--;
       if (currentTime.hours < 0)
       {
         currentTime.hours = 23;
       }
-      Serial.println("Decreased Hour");
-      Serial.println(currentTime.hours);
     }
-    if (digitalRead(ANALOG_BUTTON_PIN) == 0)
+
+    if (isButtonPressed(&joystick))
     {
-      while (digitalRead(ANALOG_BUTTON_PIN) == 0)
-      {
-        delay(10);
-      }
       break;
     }
+    delay(50);
   }
 
   Serial.print("Hour selected: ");
@@ -245,35 +227,26 @@ void selectMinute(Time &currentTime)
   while (true)
   {
     displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_MINUTE ? 1 : 4);
-    delay(200);
-    if (analogRead(ANALOG_Y_PIN) >= 900)
+
+    int direction;
+    if (isJoystickMoved(&joystick, &direction))
     {
-      currentTime.minutes++;
+      currentTime.minutes += direction;
       if (currentTime.minutes >= 60)
       {
         currentTime.minutes = 0;
       }
-      Serial.print("Increased Minute: ");
-      Serial.println(currentTime.minutes);
-    }
-    else if (analogRead(ANALOG_Y_PIN) <= 100)
-    {
-      currentTime.minutes--;
       if (currentTime.minutes < 0)
       {
         currentTime.minutes = 59;
       }
-      Serial.print("Decreased Minute: ");
-      Serial.println(currentTime.minutes);
     }
-    if (digitalRead(ANALOG_BUTTON_PIN) == 0)
+
+    if (isButtonPressed(&joystick))
     {
-      while (digitalRead(ANALOG_BUTTON_PIN) == 0)
-      {
-        delay(10);
-      }
       break;
     }
+    delay(50);
   }
   Serial.print("Minute selected: ");
   Serial.println(currentTime.minutes);
@@ -284,35 +257,26 @@ void selectSecond(Time &currentTime)
   while (true)
   {
     displayTimeWithCursor(&lcd, currentWatch, currentAlarm.hours, currentAlarm.minutes, currentAlarm.seconds, state == SET_SECOND ? 2 : 5);
-    delay(200);
-    if (analogRead(ANALOG_Y_PIN) >= 900)
+
+    int direction;
+    if (isJoystickMoved(&joystick, &direction))
     {
-      currentTime.seconds++;
+      currentTime.seconds += direction;
       if (currentTime.seconds >= 60)
       {
         currentTime.seconds = 0;
       }
-      Serial.print("Increased Second: ");
-      Serial.println(currentTime.seconds);
-    }
-    else if (analogRead(ANALOG_Y_PIN) <= 100)
-    {
-      currentTime.seconds--;
       if (currentTime.seconds < 0)
       {
         currentTime.seconds = 59;
       }
-      Serial.print("Decreased Second: ");
-      Serial.println(currentTime.seconds);
     }
-    if (digitalRead(ANALOG_BUTTON_PIN) == 0)
+
+    if (isButtonPressed(&joystick))
     {
-      while (digitalRead(ANALOG_BUTTON_PIN) == 0)
-      {
-        delay(10);
-      }
       break;
     }
+    delay(50);
   }
   Serial.print("Second selected: ");
   Serial.println(currentTime.seconds);

@@ -9,9 +9,13 @@ typedef struct
     int portX;
     int portY;
     int button;
+    unsigned long lastButtonTime;
+    unsigned long lastJoystickTime;
+    bool lastButtonState;
 } Joystick;
 
 void setupJoystick(Joystick *joystick, int portX, int portY, int button);
 bool isButtonPressed(Joystick *joystick);
+bool isJoystickMoved(Joystick *joystick, int *direction);
 
 #endif
