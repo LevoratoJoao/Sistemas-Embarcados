@@ -59,5 +59,3 @@ JoystickDirection isJoystickMoved(Joystick *joystick)
     }
     return NONE;
 }
-
-// TODO: esc para sair de editar
