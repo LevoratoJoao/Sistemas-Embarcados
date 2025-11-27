@@ -61,7 +61,10 @@ States previousState;
 
 void TimerHandler1()
 {
-  updateWatch(); // TODO: atualizar so em NORMAL
+  if (state == NORMAL)
+  {
+    updateWatch();
+  }
   if (isButtonPressed(&joystick))
   {
     state = SET_HOUR;
@@ -161,7 +164,7 @@ void loop()
     if (alarmTriggered)
     {
       triggerAlarm();
-      state = NORMAL; // TODO
+      state = NORMAL;
       break;
     }
   }
